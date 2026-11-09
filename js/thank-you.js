@@ -18,7 +18,7 @@ for (const [label, value] of [['Unit', order.productName], ['Name', order.name],
 if (order.model) detail.insertAdjacentHTML('afterend', technicalDetails(`<p>Model: ${escapeHTML(order.model)}</p>`));
 if (!order.product) {
   heading.textContent = 'No order to show yet.';
-  document.getElementById('thankyou-sub').textContent = 'Choose a unit in the calculator, then continue to checkout.';
+  document.getElementById('thankyou-sub').innerHTML = 'Use the <a class="calculator-link" href="index.html#calculator">calculator</a> to find an option, then confirm it on WhatsApp.';
   detail.hidden = true;
 }
 const message = order.reference

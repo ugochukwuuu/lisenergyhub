@@ -14,7 +14,7 @@ export function productCardSummary(product) {
 export function productCard(product) {
   const fridge = appliances.find(a => a.id === 'mini-fridge');
   const warning = product.acOutput && !canRunAppliance(product, fridge)
-    ? 'The mini fridge in our calculator needs a bigger unit.' : '';
+    ? 'The mini fridge in our <a class="calculator-link" href="#calculator">calculator</a> needs a bigger unit.' : '';
   const quote = `Hello! Please send today's price for ${product.name} (${product.model}).`;
   const price = product.available === false ? 'Not available to order' : product.price === null
     ? `<a class="range-price-link" href="https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(quote)}" target="_blank" rel="noopener noreferrer">Ask for today's price</a>`

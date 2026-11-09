@@ -36,6 +36,12 @@ a {
   text-decoration: none;
 }
 
+.calculator-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
 ul, ol {
   list-style: none;
 }

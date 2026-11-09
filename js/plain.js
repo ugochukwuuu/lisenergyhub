@@ -68,8 +68,10 @@ export function technicalDetails(content, { className = '', id = '' } = {}) {
   return `<details class="tech ${escapeHTML(className)}"${id ? ` id="${escapeHTML(id)}"` : ''}><summary>Technical details</summary><div data-level="technical">${content}</div></details>`;
 }
 
-export function productTechnicalContent(product) {
-  return `<p>Model: ${escapeHTML(product.model)}</p><table class="spec-table"><tbody>${product.specs.map(s => `<tr><th scope="row">${escapeHTML(s.label)}</th><td>${escapeHTML(s.value)}</td></tr>`).join('')}</tbody></table>
+export function productTechnicalContent(product, { calculatorHref = '#calculator' } = {}) {
+  const specCopy = value => escapeHTML(value).replace(/\bcalculator\b/gi,
+    word => `<a class="calculator-link" href="${escapeHTML(calculatorHref)}">${word}</a>`);
+  return `<p>Model: ${escapeHTML(product.model)}</p><table class="spec-table"><tbody>${product.specs.map(s => `<tr><th scope="row">${specCopy(s.label)}</th><td>${specCopy(s.value)}</td></tr>`).join('')}</tbody></table>
     <h4>Charging</h4><ul>${product.rechargeOptions.map(r => `<li>${escapeHTML(r.method)}: ${escapeHTML(r.detail)} (${escapeHTML(r.time)})</li>`).join('')}</ul>
     <h4>In the box</h4><ul>${product.inTheBox.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
     ${product.slug === 'itel-power-go' ? `<p>Most routers can run from this unit. Check the label on your router's charger.</p><p>Check that it says 12 V.</p>` : ''}
