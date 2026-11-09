@@ -5,6 +5,12 @@ import { systemProducts } from './system-products.js';
 import { matchSystemBundle } from './system-bundles.js';
 
 export const solutionLabels = { 'power-bank':'USB power bank', portable:'Portable power station', installed:'Inverter and battery setup', solar:'Solar and battery setup' };
+const enquiryNeeds = {
+  'power-bank': 'a USB power bank',
+  portable: 'a portable power station',
+  installed: 'an inverter and battery setup',
+  solar: 'a solar and battery setup',
+};
 export function solutionKind(product) { return product?.tier==='power-bank' ? 'power-bank' : 'portable'; }
 export function solutionTitle(product) {
   if (!product) return 'Installed power setup';
@@ -82,7 +88,7 @@ export function solutionEnquiry(result,selections,outageHours,budget) {
   const unit = result.bestFit;
   const index = result.options?.findIndex(product => product.slug === unit?.slug) ?? -1;
   const bundle = result.bundle;
-  return `Hello! Please help me choose ${solutionLabels[result.kind]??'a power solution'}.\nMy power cut: ${outageHours} hours.\n${lines}`+
+  return `Hello, I need ${enquiryNeeds[result.kind] ?? 'a backup power solution'}.\nMy power cut: ${outageHours} hours.\n${lines}`+
     (budget!=null?`\nUnit budget: NGN ${budget}.`:'')+
     (sizing?`\nPreliminary estimate: ${sizing.batteryWh} Wh battery, ${sizing.inverterW} W inverter, ${sizing.peakW} W starting load.`+
       (result.kind==='solar'?` Solar array estimate: ${sizing.panelW} W at ${sizing.sunHours} peak sun hours.`:'')+`\nExisting equipment: ${result.existing}. Please check compatibility, installation and the full price.`:'')+
