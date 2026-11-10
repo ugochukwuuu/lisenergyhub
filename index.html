@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title data-page-title="Steady power for your setup">Steady power for your setup | Site name</title>
+  <title data-page-title="Steady power for your setup">Steady power for your setup | Let It Shine</title>
   <meta name="description" content="Find power banks, portable stations and fitted solar or inverter setups around your needs. Independent power solutions from Let It Shine." />
 
   <!-- Open Graph -->
@@ -51,7 +51,7 @@
     <nav class="nav-inner" aria-label="Main navigation">
       <a href="/" class="nav-logo" data-brand-label="home" aria-label="Home">
         <img class="brand-mark" src="assets/brand/logo-mark.png" width="256" height="248" alt="" decoding="async">
-        <span data-site-name>Site name</span>
+        <span data-site-name>Let It Shine</span>
       </a>
 
       <ul class="nav-links" role="list">
@@ -366,7 +366,7 @@
 
     <div class="footer-bottom">
       <p class="footer-copy">
-        &copy; <span id="footer-year"></span> <span data-site-name>Site name</span>. All rights reserved.
+        &copy; <span id="footer-year"></span> <span data-site-name>Let It Shine</span>. All rights reserved.
       </p>
       <div class="social-links" aria-label="Social media links">
         <a href="#" class="social-link" aria-label="Follow us on X (Twitter)">
@@ -388,9 +388,11 @@
      ══════════════════════════════════════════════════════════════════════ -->
 <script type="module" src="js/main-sections.js"></script>
 <script type="module" src="js/range-scroll.js"></script>
-<script type="module" src="js/calculator-ui.js"></script>
 <script type="module" src="js/main.js"></script>
 <script type="module">
+  import { catalogueReady } from './data/catalogue.js';
+  catalogueReady.then(() => import('./js/calculator-ui.js'));
+
   // Footer year
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 

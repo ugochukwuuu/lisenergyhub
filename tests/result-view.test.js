@@ -3,9 +3,12 @@ import assert from 'node:assert/strict';
 import {estimateSetup,selectionsFromItems} from '../js/estimate.js';
 import {resultPresentation,coverageMeter,trimAction} from '../js/result-view.js';
 import {productPhoto} from '../js/product-photo.js';
-import {portableProducts} from '../data/catalogue.js';
+import {catalogueReady, portableProducts} from '../data/catalogue.js';
 import {presets} from '../data/presets.js';
 import {checkProduct} from '../js/recommend.js';
+
+await catalogueReady;
+
 test('coverage describes the outage window and leaves a conservative remaining charge',()=>{
  const items=presets.find(p=>p.id==='families').items;
  const r=estimateSetup(items);const v=resultPresentation(r,selectionsFromItems(items),8);

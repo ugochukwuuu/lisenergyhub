@@ -1,9 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {recommend,checkProduct} from '../js/recommend.js';
-import {portableProducts} from '../data/catalogue.js';
+import {catalogueReady, portableProducts} from '../data/catalogue.js';
 import {selectionsFromItems} from '../js/estimate.js';
 import {createCalculatorState,reduceCalculator,calculatorView} from '../js/calculator-state.js';
+
+await catalogueReady;
+
 const light=selectionsFromItems([{applianceId:'laptop',qty:1,hours:2}]);
 const fridge=selectionsFromItems([{applianceId:'mini-fridge',qty:1,hours:2}]);
 test('blank or invalid budget preserves the original recommendation',()=>{

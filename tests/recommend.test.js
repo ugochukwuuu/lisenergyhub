@@ -16,7 +16,10 @@ import { recommend, deriveLoad, checkProduct, computePayback, runtimeLabel } fro
 // Using the exact values from data/catalogue.js so the tests are honest.
 // peakOutputW for Power Tank is 600 (confirmed lower figure from key_specs).
 
-import { catalogue, portableProducts } from '../data/catalogue.js';
+import { catalogueReady, catalogue, portableProducts } from '../data/catalogue.js';
+
+await catalogueReady;
+
 const POWER_GO = catalogue.products.find(p => p.slug === 'itel-power-go');
 const POWER_GO_PRO = catalogue.products.find(p => p.slug === 'itel-power-go-pro');
 const POWER_TANK = catalogue.products.find(p => p.slug === 'itel-power-tank');

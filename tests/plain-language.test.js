@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { portableProducts } from '../data/catalogue.js';
+import { catalogueReady, portableProducts } from '../data/catalogue.js';
 import { appliances } from '../data/appliances.js';
 import { presets } from '../data/presets.js';
 import { plainCopy, glossary, everydayLoads } from '../data/plain-language.js';
@@ -13,6 +13,9 @@ import { everydayEquivalents, equivalentFor, goodFor, wontRun, lifespan, canRunA
 import { faqAnswers } from '../js/plain-sections.js';
 import { recommend, checkProduct, deriveLoad } from '../js/recommend.js';
 import { selectionsFromItems } from '../js/estimate.js';
+
+await catalogueReady;
+
 const tank=portableProducts.find(p=>p.slug==='itel-power-tank');
 const go=portableProducts.find(p=>p.slug==='itel-power-go');
 
@@ -164,6 +167,29 @@ test('homepage renders products and a complete footer without a delivery section
   await page.locator('#trust-facts article').first().waitFor();
   assert.equal(await page.locator('#delivery-table, a[href="#delivery-table"]').count(),0);
   assert.deepEqual(errors,[]);await page.close();
+});
+
+test('branding and homepage images render while the catalogue request is pending', async()=>{
+  const page=await browser.newPage({viewport:{width:390,height:850},reducedMotion:'reduce'});
+  let releaseCatalogue;
+  const cataloguePending=new Promise(resolve=>{releaseCatalogue=resolve;});
+  await page.route('**/products.json',async route=>{await cataloguePending;await route.continue();});
+  try {
+    await page.goto('http://127.0.0.1:'+server.address().port);
+    await page.locator('#trust-facts article').first().waitFor();
+    assert.match(await page.title(), /Let It Shine/);
+    assert.equal(await page.locator('.nav-logo [data-site-name]').innerText(),'Let It Shine');
+    await page.waitForFunction(()=>document.querySelector('.hero-img').naturalWidth>0);
+    const rangeImage=page.locator('#trust-facts img').first();
+    await rangeImage.scrollIntoViewIfNeeded();
+    await page.waitForFunction(()=>document.querySelector('#trust-facts img').naturalWidth>0);
+    assert.equal(await page.locator('#tile-fan').count(),0);
+    releaseCatalogue();
+    await page.locator('#tile-fan').waitFor();
+  } finally {
+    releaseCatalogue();
+    await page.close();
+  }
 });
 
 test('consultation validates details and sends ordering visitors to the solution calculator', async()=>{

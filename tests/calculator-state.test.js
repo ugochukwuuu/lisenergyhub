@@ -1,7 +1,11 @@
+import { catalogueReady } from '../data/catalogue.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { presets } from '../data/presets.js';
 import { createCalculatorState, loadPreset, reduceCalculator, calculatorView, clampHours } from '../js/calculator-state.js';
+
+await catalogueReady;
+
 
 test('calculator starts with exactly the Families preset and a real result', () => {
   const state = createCalculatorState();

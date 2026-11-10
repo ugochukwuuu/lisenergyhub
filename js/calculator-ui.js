@@ -83,7 +83,7 @@ function renderRows() {
     return `<div class="load-row" data-row="${id}">
       <div class="load-row-name">${appliancePicture(a ? id : 'other')}${a ? `<strong>${name}</strong>` : `<input id="load-${id}-label" type="text" maxlength="80" aria-label="Custom appliance name" placeholder="Appliance name" data-field="label" value="${escapeHTML(item.label)}"><div class="load-surge">${rowField(item, 'surgeMultiplier', 'Startup multiplier', item.surgeMultiplier, 1, 10)}</div>`}</div>
       ${rowField(item, 'qty', 'Quantity', item.qty, 1, 20, 1)}
-      ${rowField(item, 'watts', 'Watts each', Object.hasOwn(item, 'watts') ? item.watts : a?.watts, 1, 50000)}
+      ${rowField(item, 'watts', 'Watts each', Object.prototype.hasOwnProperty.call(item, 'watts') ? item.watts : a?.watts, 1, 50000)}
       ${rowField(item, 'hours', 'Hours a day', item.hours, 0.1, 24)}
       <button type="button" class="load-remove" aria-label="Remove ${escapeHTML(name ?? 'custom appliance')}" data-remove="${id}">×</button>
     </div>`;

@@ -1,10 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { catalogue, portableProducts, DEFAULT_DAILY_OUTAGE_HOURS, DEFAULT_MONTHLY_POWER_SPEND } from '../data/catalogue.js';
+import { catalogueReady, catalogue, portableProducts, DEFAULT_DAILY_OUTAGE_HOURS, DEFAULT_MONTHLY_POWER_SPEND } from '../data/catalogue.js';
 import { presets } from '../data/presets.js';
 import { estimateSetup, selectionsFromItems } from '../js/estimate.js';
 import { recommend, buildWhatsAppMessage, computePayback } from '../js/recommend.js';
 import { canCheckout, computeOrderTotal } from '../js/order.js';
+
+await catalogueReady;
+
 
 const tank = catalogue.products.find(p => p.slug === 'itel-power-tank');
 const go = catalogue.products.find(p => p.slug === 'itel-power-go');

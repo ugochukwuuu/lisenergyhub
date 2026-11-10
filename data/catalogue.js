@@ -807,11 +807,18 @@ const baseCatalogue = {
 
 };
 
-const loaded = await loadProductControls();
-const resolved = applyProductControls([...baseCatalogue.products, ...hithiumProducts, ...solutionProducts, ...bundleProducts], loaded.controls);
-export const productControlErrors = [...(loaded.error ? [loaded.error] : []), ...resolved.errors];
-export const catalogue = { ...baseCatalogue, products: resolved.products };
+export const productControlErrors = [];
+export const catalogue = { ...baseCatalogue, products: [] };
+export let portableProducts = [];
+
+// Pages can render their static content while the commercial controls load.
+export const catalogueReady = loadProductControls().then(({ controls, error }) => {
+  const resolved = applyProductControls([...baseCatalogue.products, ...hithiumProducts, ...solutionProducts, ...bundleProducts], controls);
+  if (error) productControlErrors.push(error);
+  productControlErrors.push(...resolved.errors);
+  catalogue.products = resolved.products;
+  portableProducts = resolved.products.filter(p => p.calculatorEligible && p.tier === 'portable');
+});
 
 // Every consumer receives the same resolved names, prices and availability.
 export const { deliveryFeeByState, powerSpectrum, DEFAULT_MONTHLY_POWER_SPEND, DEFAULT_DAILY_OUTAGE_HOURS } = catalogue;
-export const portableProducts = catalogue.products.filter(p => p.calculatorEligible && p.tier === "portable");

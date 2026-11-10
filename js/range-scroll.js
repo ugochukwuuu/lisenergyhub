@@ -20,7 +20,7 @@ if (rail && previous && next && position) {
       return Math.min(box.right,bounds.right) - Math.max(box.left,bounds.left) >= box.width / 2 ? index + 1 : null;
     }).filter(Boolean);
     if (visible.length) {
-      const first = visible[0], last = visible.at(-1);
+      const first = visible[0], last = visible[visible.length - 1];
       position.textContent = `${first === last ? first : `${first} to ${last}`} of ${cards.length}`;
     }
   };
@@ -37,5 +37,5 @@ if (rail && previous && next && position) {
   new ResizeObserver(update).observe(rail);
   update();
 }
-// Wait for the catalogue-backed cards before measuring the rail.
+// Render the cards before measuring the rail.
 import './main-sections.js';

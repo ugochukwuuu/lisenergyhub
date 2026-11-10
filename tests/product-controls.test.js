@@ -2,11 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { applyProductControls } from '../data/product-controls.js';
-import { catalogue, portableProducts, productControlErrors } from '../data/catalogue.js';
+import { catalogueReady, catalogue, portableProducts, productControlErrors } from '../data/catalogue.js';
 import { recommend, computePayback, checkProduct, deriveLoad, buildWhatsAppMessage } from '../js/recommend.js';
 import { canCheckout, computeOrderTotal } from '../js/order.js';
 import { productCard } from '../js/product-card.js';
 import { resultPresentation } from '../js/result-view.js';
+
+await catalogueReady;
+
 
 const controls = JSON.parse(await readFile(new URL('../products.json', import.meta.url), 'utf8'));
 const resolve = overrides => applyProductControls(catalogue.products, { ...controls, ...overrides }).products;

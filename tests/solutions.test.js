@@ -1,12 +1,15 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {catalogue,productControlErrors} from '../data/catalogue.js';
+import {catalogueReady, catalogue,productControlErrors} from '../data/catalogue.js';
 import {solutionProducts} from '../data/solution-products.js';
 import {systemBundles} from '../data/system-bundles.js';
 import {recommendSolutions,bankSupports,systemSizing,solutionEnquiry} from '../js/solutions.js';
 import {deriveLoad,checkProduct} from '../js/recommend.js';
 import {selectionsFromItems} from '../js/estimate.js';
 import {canCheckout} from '../js/order.js';
+
+await catalogueReady;
+
 const selections=(id,qty,hours)=>selectionsFromItems([{applianceId:id,qty,hours}]);
 const phone=selections('phone-charger',1,2);
 
