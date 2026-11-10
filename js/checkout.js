@@ -67,7 +67,8 @@ function pay() {
   sendLead({ source: 'checkout-pay', name, phone, email, address, state, product: product.slug, price: total, estimate });
   function finish(extra) {
     sessionStorage.setItem('order', JSON.stringify({ ...order, ...extra }));
-    window.location.href = 'thank-you.html';
+    const query = new URLSearchParams(extra.demo ? { demo: '1' } : { reference: extra.reference });
+    window.location.href = `/thank-you?${query}`;
   }
   if (demo) { finish({ demo: true }); return; }
   if (!window.PaystackPop) {

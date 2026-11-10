@@ -21,6 +21,7 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
   let reqPath = decodeURI(req.url.split('?')[0]);
   if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
+  if (reqPath === '/thank-you') reqPath = '/thank-you.html';
   const filePath = path.join(root, reqPath);
 
   fs.stat(filePath, (err, stats) => {

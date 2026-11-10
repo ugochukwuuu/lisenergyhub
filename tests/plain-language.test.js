@@ -103,9 +103,12 @@ before(async()=>{
     try{playwright=require(location);break;}catch{}
   }
   assert.ok(playwright,'Copy lint needs Playwright as a dev tool or PLAYWRIGHT_MODULE_PATH.');
+  const {rewrites}=JSON.parse(await readFile(path.join(root,'vercel.json'),'utf8'));
   server=createServer(async(req,res)=>{
     try{
-      const target=path.resolve(root,'.'+new URL(req.url,'http://localhost').pathname.replace(/\/$/,'/index.html'));
+      const pathname=new URL(req.url,'http://localhost').pathname;
+      const rewrite=rewrites.find(route=>route.source===pathname);
+      const target=path.resolve(root,'.'+(rewrite?.destination??pathname).replace(/\/$/,'/index.html'));
       if(!target.startsWith(root)){res.writeHead(403).end();return;}
       res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml'})[path.extname(target)]??'application/octet-stream');
       res.end(await readFile(target));
@@ -143,7 +146,7 @@ before(async()=>{
   await page.locator('#delivery-state').selectOption('Lagos');
   assert.equal(await page.locator('#order-total').innerText(),`₦${new Intl.NumberFormat('en-NG').format(tank.price+3000)}`);
   await page.locator('#buyer-name').fill('Test Buyer');await page.locator('#buyer-phone').fill('08012345678');await page.locator('#buyer-address').fill('Test street');
-  await page.locator('#pay-btn').click();await page.waitForURL('**/thank-you.html');await page.locator('#order-detail').waitFor();await collect('rendered thank you');
+  await page.locator('#pay-btn').click();await page.waitForURL(url=>url.pathname==='/thank-you'&&url.searchParams.get('demo')==='1');await page.locator('#demo-confirmation').waitFor();await collect('rendered thank you');
   assert.deepEqual(errors,[]);
 }, {timeout:60000});
 after(async()=>{await browser?.close();await new Promise(resolve=>server?server.close(resolve):resolve());});
@@ -188,6 +191,29 @@ test('branding and homepage images render while the catalogue request is pending
     await page.locator('#tile-fan').waitFor();
   } finally {
     releaseCatalogue();
+    await page.close();
+  }
+});
+
+test('the payment return page works with an external reference and no matching checkout', async()=>{
+  const page=await browser.newPage({viewport:{width:390,height:850}});
+  const base='http://127.0.0.1:'+server.address().port;
+  try {
+    const response=await page.goto(base+'/thank-you');
+    assert.equal(response.status(),200);
+    assert.equal(await page.locator('h1').innerText(),'Thank you.');
+    assert.equal(await page.locator('#order-detail').isVisible(),false);
+    await page.evaluate(()=>sessionStorage.setItem('order',JSON.stringify({product:'itel-power-tank',productName:'Earlier order',name:'Earlier Buyer',demo:true})));
+    await page.goto(base+'/thank-you?trxref=PAY-123');
+    await page.locator('#order-detail').waitFor();
+    assert.match(await page.locator('#order-detail').innerText(),/Payment reference\s+PAY-123/);
+    assert.doesNotMatch(await page.locator('main').innerText(),/Earlier|demo order|payment (?:successful|confirmed)/i);
+    const whatsapp=new URL(await page.locator('#wa-confirm').getAttribute('href'));
+    assert.equal(whatsapp.hostname,'wa.me');
+    assert.match(whatsapp.searchParams.get('text'),/PAY-123/);
+    assert.equal(await page.locator('.confirmation-actions a').first().getAttribute('href'),'/');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  } finally {
     await page.close();
   }
 });

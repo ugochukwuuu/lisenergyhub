@@ -1,28 +1,44 @@
-import { technicalDetails, escapeHTML } from './plain.js';
 import { WHATSAPP_NUMBER } from '../config.js';
 import { formatNaira } from './format.js';
 
-let order;
-try { order = JSON.parse(sessionStorage.getItem('order') || '{}'); } catch { order = {}; }
-const heading = document.getElementById('thankyou-heading');
-if (order.name) heading.textContent = `Thank you, ${order.name.split(' ')[0]}.`;
-if (order.demo) document.getElementById('demo-confirmation').hidden = false;
+const params = new URLSearchParams(window.location.search);
+const reference = [params.get('reference'), params.get('trxref')].find(value =>
+  value && /^[A-Za-z0-9._=\-]{1,128}$/.test(value));
+const demoRequested = !reference && params.get('demo') === '1';
+
+let storedOrder;
+try { storedOrder = JSON.parse(sessionStorage.getItem('order')); } catch { storedOrder = null; }
+const matchesCheckout = storedOrder?.product && (reference
+  ? !storedOrder.demo && storedOrder.reference === reference
+  : demoRequested && storedOrder.demo === true);
+const order = matchesCheckout ? storedOrder : null;
+
+if (order?.name) document.getElementById('thankyou-heading').textContent = `Thank you, ${order.name.split(' ')[0]}.`;
+if (order?.demo) {
+  document.getElementById('thankyou-sub').hidden = true;
+  document.getElementById('demo-confirmation').hidden = false;
+}
+
 const detail = document.getElementById('order-detail');
-for (const [label, value] of [['Unit', order.productName], ['Name', order.name], ['Delivery state', order.state], ['Order total', order.total ? formatNaira(order.total) : null], ['Reference', order.reference]]) {
+for (const [label, value] of [
+  ['Unit', order?.productName],
+  ['Delivery state', order?.state],
+  ['Order total', order?.total ? formatNaira(order.total) : null],
+  ['Payment reference', reference],
+]) {
   if (!value) continue;
   const row = document.createElement('div');
-  const term = document.createElement('dt'); term.textContent = label;
-  const description = document.createElement('dd'); description.textContent = value;
-  row.append(term, description); detail.append(row);
+  const term = document.createElement('dt');
+  const description = document.createElement('dd');
+  term.textContent = label;
+  description.textContent = value;
+  row.append(term, description);
+  detail.append(row);
 }
-if (order.model) detail.insertAdjacentHTML('afterend', technicalDetails(`<p>Model: ${escapeHTML(order.model)}</p>`));
-if (!order.product) {
-  heading.textContent = 'No order to show yet.';
-  document.getElementById('thankyou-sub').innerHTML = 'Use the <a class="calculator-link" href="index.html#calculator">calculator</a> to find an option, then confirm it on WhatsApp.';
-  detail.hidden = true;
-}
-const message = order.reference
-  ? `Hello! I placed an order for ${order.productName} (${order.model}). Reference: ${order.reference}. Please confirm.`
-  : order.demo ? `Hello! I tried the demo checkout for ${order.productName} (${order.model}). No payment was taken. Please help me order.`
-  : 'Hello! Please help me choose a power box.';
+detail.hidden = !detail.childElementCount;
+
+const message = reference
+  ? `Hello! Please help me check my order. Payment reference: ${reference}.`
+  : order?.demo ? `Hello! I tried the demo checkout for ${order.productName}. Please help me order.`
+  : 'Hello! Please help me with my order.';
 document.getElementById('wa-confirm').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
